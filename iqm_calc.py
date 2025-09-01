@@ -3,74 +3,94 @@ import numpy as np
 import re
 import sys
 
-EVAL_FILENAMES = {"evaluation", "1evaluation.txt", "evaluation.txt"}
+import os
+import sys
+import re
+import numpy as np
 
-def compute_iqm(values):
-    """Compute the interquartile mean (IQM) of a list/array of values."""
-    values = np.sort(values)
-    if values.size == 0:
+FLOAT_RE = re.compile(r"[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?")
+
+def compute_iqm(values, lower=0.20, upper=0.80):
+    """
+Interquantile mean over [lower, upper] (inclusive).
+Example: lower=0.20, upper=0.80 for a 20–80 IQM.
+    """
+    arr = np.asarray(values, dtype=float)
+    if arr.size == 0:
         return float("nan")
-    q1 = np.percentile(values, 25)
-    q3 = np.percentile(values, 75)
-    trimmed_values = values[(values >= q1) & (values <= q3)]
-    return float(np.mean(trimmed_values)) if trimmed_values.size else float("nan")
+    ql, qu = np.quantile(arr, [lower, upper])
+    trimmed = arr[(arr >= ql) & (arr <= qu)]
+    return float(np.mean(trimmed)) if trimmed.size else float("nan")
 
-def extract_values_after_episode_rewards(filepath):
-    """Extract float values from lines after the first 'Episode Rewards' line."""
-    values = []
+def extract_rewards(filepath):
+    """
+Find the 'rewards: [ ... ]' line (case-insensitive) and return the list of numbers.
+Handles lists on one line or wrapped across lines.
+    """
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-
-        start_index = next((i for i, line in enumerate(lines) if "Episode Rewards" in line), None)
-        if start_index is None:
-            print(f"[WARNING] 'Episode Rewards' not found in {filepath}")
+        with open(filepath, "r", encoding="utf-8") as f:
+            content = f.read()
+        # Find the bracketed list after 'rewards:'
+        m = re.search(r"rewards\s*:\s*\[(.*?)\]", content, flags=re.IGNORECASE | re.DOTALL)
+        if not m:
+            print(f"[WARNING] rewards list not found in {filepath}")
             return []
-
-        for line in lines[start_index + 1:]:
-            matches = re.findall(r"[-+]?\d*\.\d+|\d+", line)  # also capture integers just in case
-            for m in matches:
-                try:
-                    values.append(float(m))
-                except ValueError:
-                    pass
+        bracket_content = m.group(1)
+        nums = [float(x) for x in FLOAT_RE.findall(bracket_content)]
+        return nums
     except Exception as e:
-        print(f"[ERROR] Failed to extract values from {filepath}: {e}")
-    return values
+        print(f"[ERROR] Failed to parse {filepath}: {e}")
+        return []
 
-def process_evaluation_file(evaluation_file_path):
-    values = extract_values_after_episode_rewards(evaluation_file_path)
-    if values:
-        iqm = compute_iqm(np.array(values, dtype=float))
-        out_dir = os.path.dirname(evaluation_file_path)
-        output_path = os.path.join(out_dir, "evaluation_iqm.txt")
-        try:
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(f"IQM: {iqm}\n")
-            print(f"[INFO] Processed {evaluation_file_path} -> IQM: {iqm} -> {output_path}")
-        except Exception as e:
-            print(f"[ERROR] Failed writing IQM for {evaluation_file_path}: {e}")
-    else:
-        print(f"[INFO] No valid numeric values found in {evaluation_file_path}")
+def write_or_append_iqm(filepath, iqm, lower=0.20, upper=0.80):
+    """
+If an 'IQM (20-80):' line already exists, update it; otherwise append it at the end.
+    """
+    tag = f"IQM ({int(lower*100)}-{int(upper*100)}):"
+    new_line = f"{tag} {iqm}\n"
+    try:
+        with open(filepath, "r+", encoding="utf-8") as f:
+            content = f.read()
+            pattern = re.compile(rf"^\s*{re.escape(tag)}\s*.*$", flags=re.MULTILINE)
+            if pattern.search(content):
+                content = pattern.sub(new_line.strip(), content)
+                f.seek(0)
+                f.write(content)
+                f.truncate()
+                print(f"[INFO] Updated IQM in {filepath} -> {iqm}")
+            else:
+                if not content.endswith("\n"):
+                    f.write("\n")
+                f.write(new_line)
+                print(f"[INFO] Appended IQM to {filepath} -> {iqm}")
+    except Exception as e:
+        print(f"[ERROR] Failed to write IQM for {filepath}: {e}")
+
+def is_evaluation_filename(name: str) -> bool:
+    """Return True if filename contains 'evaluation' anywhere (case-insensitive)."""
+    return "evaluation" in name.lower()
+
+def process_file(path):
+    rewards = extract_rewards(path)
+    if not rewards:
+        print(f"[INFO] No rewards parsed from {path}")
+        return
+    iqm = compute_iqm(rewards, lower=0.20, upper=0.80)
+    write_or_append_iqm(path, iqm, lower=0.20, upper=0.80)
 
 def main(base_folder):
     if not os.path.isdir(base_folder):
         print(f"[ERROR] Not a directory: {base_folder}")
         return
     found = 0
-    for root, _, files in os.walk(base_folder):
+    for root, _, files in os.walk(base_folder, topdown=True, followlinks=False):
         for fname in files:
-            if fname in EVAL_FILENAMES:
-                eval_path = os.path.join(root, fname)
-                process_evaluation_file(eval_path)
+            if is_evaluation_filename(fname):
                 found += 1
+                process_file(os.path.join(root, fname))
     if found == 0:
-        print(f"[INFO] No evaluation files found under: {base_folder}")
+        print(f"[INFO] No *evaluation* files found under: {base_folder}")
 
 if __name__ == "__main__":
-    # Use CLI arg if provided; otherwise fall back to hardcoded path
-    if len(sys.argv) > 1:
-        main_folder = sys.argv[1]
-    else:
-        main_folder = "tree_splitting_by_attention/context_trees"
-    main(main_folder)
+    base = sys.argv[1] if len(sys.argv) > 1 else "/home/arch/Documents/gitRepos/ADT/trees"
+    main(base)

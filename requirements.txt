@@ -16,3 +16,5 @@ hackatari
 imageio==2.35.1
 imageio-ffmpeg
 stable_baselines3[extras]==2.0.0
+pyyaml
+colormath
