@@ -40,12 +40,12 @@ The extractor script trains context-based decision trees using the DAGGER algori
 
 #### Basic Usage:
 ```bash
-python extractor.py -game freeway -seed 0 -depth 5 -k 3
+python extract.py -game freeway -seed 0 -depth 5 -k 3
 ```
 
 #### Full Options Extraction Example:
 ```bash
-python extractor.py -game tennis -seed 42 -depth 8 -k 5 -oblique -batch 50000 -iterations 5 -distance l2 -output custom_trees/ -eval-episodes 20
+python extract.py -game tennis -seed 42 -depth 8 -k 5 -oblique -batch 50000 -iterations 5 -distance l2 -output custom_trees/ -eval-episodes 20
 ```
 
 #### Key Parameters:
@@ -66,12 +66,12 @@ The loader script loads pre-trained decision trees and evaluates their performan
 
 #### Basic Usage:
 ```bash
-python loader.py -dir path/to/trees -game freeway -episodes 10
+python tree_loader.py -dir path/to/trees -game freeway -episodes 10
 ```
 
 #### Advanced Evaluation Example:
 ```bash
-python loader.py -dir context_adt_nearest/ -game tennis -episodes 50 -video -seed 42 -pruned -verbose -k 5 -pruned
+python tree_loader.py -dir context_adt_nearest/ -game tennis -episodes 50 -video -seed 42 -pruned -verbose -k 5 -pruned
 ```
 
 #### Key Parameters:
@@ -91,19 +91,19 @@ Here's a complete workflow for training and evaluating decision trees:
 ### 1. Extract Decision Trees
 ```bash
 # Extract trees for Freeway game
-python extractor.py -game freeway -seed 0 -depth 5 -k 3 -oblique -iterations 10 -output freeway_trees/ -pruned
+python extract.py -game freeway -seed 0 -depth 5 -k 3 -oblique -iterations 10 -output freeway_trees/ -pruned
 
 # Extract trees for Tennis game
-python extractor.py -game tennis -seed 0 -depth 10 -k 4 -batch 6000 -output tennis_trees/ -pruned
+python extract.py -game tennis -seed 0 -depth 10 -k 4 -batch 6000 -output tennis_trees/ -pruned
 ```
 
 ### 2. Evaluate Trained Trees
 ```bash
 # Evaluate Freeway trees
-python loader.py -dir freeway_trees/ -game freeway -episodes 10 -verbose -pruned
+python tree_loader.py -dir freeway_trees/ -game freeway -episodes 10 -verbose -pruned
 
 # Evaluate Tennis trees with video generation
-python loader.py -dir tennis_trees/ -game tennis -episodes 5 -video -verbose -pruned
+python tree_loader.py -dir tennis_trees/ -game tennis -episodes 5 -video -verbose -pruned
 ```
 
 ## Output Structure
