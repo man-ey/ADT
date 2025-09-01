@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-"""
-obliquetree_to_code.py - Updated to work with both Freeway and Tennis
-"""
 from __future__ import annotations
 
 import glob
