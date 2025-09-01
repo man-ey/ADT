@@ -20,12 +20,12 @@ The repository requires two sets of pre-trained models and data files. Use the f
 ### Download and Extract Models
 ```bash
 # Download first resource package
-wget https://next.hessenbox.de/index.php/s/tdyaS3Jes7friQm -O resource_package_1.zip
+wget https://next.hessenbox.de/public.php/dav/files/tdyaS3Jes7friQm -O resource_package_1.zip
 unzip resource_package_1.zip
 rm resource_package_1.zip
 
 # Download second resource package  
-wget https://next.hessenbox.de/index.php/s/oBCxeDTqecLeJSy -O resource_package_2.zip
+wget https://next.hessenbox.de/public.php/dav/files/oBCxeDTqecLeJSy -O resource_package_2.zip
 unzip resource_package_2.zip
 rm resource_package_2.zip
 ```
