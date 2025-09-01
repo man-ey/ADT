@@ -177,7 +177,7 @@ def main() -> None:
     # process multiple games/folders by updating this list
     folders_to_process = [
         {
-            'path': "/home/arch/Documents/gitRepos/masterth/context_adt_nearest/Tennis_seed0_pruned_3obj/tennis/",
+            'path': "context_adt_nearest/Tennis_seed0_pruned_3obj/tennis/",
             'game': 'tennis',
             'seed': 0,
             'env_name': 'ALE/Tennis-v5',
