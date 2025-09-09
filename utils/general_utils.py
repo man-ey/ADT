@@ -6,6 +6,7 @@ from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv
 import numpy as np
 import re
 from collections import defaultdict
+from pathlib import Path
 import gymnasium
 from hackatari.core import HackAtari
 
@@ -42,18 +43,21 @@ class PressOnReset(gymnasium.Wrapper):
 
 
 # Load model and environment
-focus_dir="resources/focusfiles/"
 def load_model_and_env(game, seed, mods, pruned=False):
+    base = Path(__file__).resolve().parent.parent
+    focus_dir= base / "resources/focusfiles/"
     if pruned:
-        model_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc_pruned/best_model.zip"
-        vecnormalize_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc_pruned/best_vecnormalize.pkl"
-        focus_file="resources/checkpoints/" + game.capitalize() + "_seed"+str(seed)+"_reward-env_oc_pruned/pruned_"+game.lower()+".yaml"
+        ckpt_dir = base / "resources" / "checkpoints" / f"{game.capitalize()}_seed{seed}_reward-env_oc_pruned"
+        model_path = ckpt_dir / "best_model.zip"
+        vecnormalize_path = ckpt_dir / "best_vecnormalize.pkl"
+        focus_file = ckpt_dir / f"pruned_{game.lower()}.yaml"
         print(focus_file)
         env = Environment(env_name="ALE/"+game.capitalize()+"-v5", mods=mods, draw_features=True, reward=0, focus_dir=focus_dir,focus_file=focus_file)
         #env = PressOnReset(env, keywords=("UP", "UPFIRE", "FIRE"), n_presses=5)
     else:
-        model_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc/best_model.zip"
-        vecnormalize_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc/best_vecnormalize.pkl"
+        ckpt_dir = base / "resources" / "checkpoints" / f"{game.capitalize()}_seed{seed}_reward-env_oc"
+        model_path = ckpt_dir / "best_model.zip"
+        vecnormalize_path = ckpt_dir / "best_vecnormalize.pkl"
         env = Environment("ALE/"+game.capitalize()+"-v5", draw_features=True, reward=0, focus_dir=focus_dir)
 
     model = PPO.load(model_path)
