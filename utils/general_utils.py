@@ -42,18 +42,18 @@ class PressOnReset(gymnasium.Wrapper):
 
 
 # Load model and environment
-focus_dir="/home/arch/Documents/gitRepos/masterth/resources/focusfiles/"
+focus_dir="resources/focusfiles/"
 def load_model_and_env(game, seed, mods, pruned=False):
     if pruned:
-        model_path = "/home/arch/Documents/gitRepos/masterth/resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc_pruned/best_model.zip"
-        vecnormalize_path = "/home/arch/Documents/gitRepos/masterth/resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc_pruned/best_vecnormalize.pkl"
-        focus_file="/home/arch/Documents/gitRepos/masterth/resources/checkpoints/" + game.capitalize() + "_seed"+str(seed)+"_reward-env_oc_pruned/pruned_"+game.lower()+".yaml"
+        model_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc_pruned/best_model.zip"
+        vecnormalize_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc_pruned/best_vecnormalize.pkl"
+        focus_file="resources/checkpoints/" + game.capitalize() + "_seed"+str(seed)+"_reward-env_oc_pruned/pruned_"+game.lower()+".yaml"
         print(focus_file)
         env = Environment(env_name="ALE/"+game.capitalize()+"-v5", mods=mods, draw_features=True, reward=0, focus_dir=focus_dir,focus_file=focus_file)
         #env = PressOnReset(env, keywords=("UP", "UPFIRE", "FIRE"), n_presses=5)
     else:
-        model_path = "/home/arch/Documents/gitRepos/masterth/resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc/best_model.zip"
-        vecnormalize_path = "/home/arch/Documents/gitRepos/masterth/resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc/best_vecnormalize.pkl"
+        model_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc/best_model.zip"
+        vecnormalize_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc/best_vecnormalize.pkl"
         env = Environment("ALE/"+game.capitalize()+"-v5", draw_features=True, reward=0, focus_dir=focus_dir)
 
     model = PPO.load(model_path)
@@ -66,14 +66,14 @@ def load_model_and_env(game, seed, mods, pruned=False):
 
 def load_model_and_env_lower(game, seed, mods, pruned=False):
     if pruned:
-        model_path = "/home/arch/Documents/gitRepos/masterth/resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc_pruned_lower/best_model.zip"
-        vecnormalize_path = "/home/arch/Documents/gitRepos/masterth/resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc_pruned_lower/best_vecnormalize.pkl"
-        focus_file="/home/arch/Documents/gitRepos/masterth/resources/checkpoints/" + game.capitalize() + "_seed"+str(seed)+"_reward-env_oc_pruned_lower/pruned_"+game.lower()+".yaml"
+        model_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc_pruned_lower/best_model.zip"
+        vecnormalize_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc_pruned_lower/best_vecnormalize.pkl"
+        focus_file="resources/checkpoints/" + game.capitalize() + "_seed"+str(seed)+"_reward-env_oc_pruned_lower/pruned_"+game.lower()+".yaml"
         env = Environment(env_name="ALE/"+game.capitalize()+"-v5", mods=mods, draw_features=True, reward=0, focus_dir=focus_dir,focus_file=focus_file)
         #env = PressOnReset(env, keywords=("UP", "UPFIRE", "FIRE"), n_presses=5)
     else:
-        model_path = "/home/arch/Documents/gitRepos/masterth/resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc/best_model.zip"
-        vecnormalize_path = "/home/arch/Documents/gitRepos/masterth/resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc/best_vecnormalize.pkl"
+        model_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc/best_model.zip"
+        vecnormalize_path = "resources/checkpoints/"+game.capitalize()+"_seed"+str(seed)+"_reward-env_oc/best_vecnormalize.pkl"
         env = Environment("ALE/"+game.capitalize()+"-v5", draw_features=True, reward=0, focus_dir=focus_dir)
 
     model = PPO.load(model_path)
