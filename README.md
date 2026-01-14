@@ -91,10 +91,10 @@ Here's a complete workflow for training and evaluating decision trees:
 ### 1. Extract Decision Trees
 ```bash
 # Extract trees for Freeway game
-python extract.py -game freeway -seed 0 -depth 5 -k 3 -oblique -iterations 10 -output freeway_trees/ -pruned
+python extract.py -game freeway -seed 0 -depth 5 -k 3 -batch 6000 -oblique -iterations 10 -output freeway_trees/ -pruned
 
 # Extract trees for Tennis game
-python extract.py -game tennis -seed 0 -depth 10 -k 4 -batch 6000 -output tennis_trees/ -pruned
+python extract.py -game tennis -seed 0 -depth 10 -k 4 -batch 9000 -output tennis_trees/ -pruned
 ```
 
 ### 2. Evaluate Trained Trees
